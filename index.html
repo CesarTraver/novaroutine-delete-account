@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Data Deletion Request — Nova Routine</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #f7f5f0;
+      --surface: #ffffff;
+      --border: #e2ddd6;
+      --text-primary: #1a1916;
+      --text-secondary: #6b6860;
+      --text-muted: #9b9890;
+      --accent: #1a1916;
+      --accent-light: #f0ede8;
+      --danger: #c0392b;
+      --danger-bg: #fdf3f2;
+      --danger-border: #f5c6c2;
+      --info: #1a5276;
+      --info-bg: #eaf2f8;
+      --info-border: #aed6f1;
+      --success: #1e6b3c;
+      --success-bg: #eafaf1;
+      --success-border: #a9dfbf;
+    }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text-primary);
+      min-height: 100vh;
+      line-height: 1.7;
+    }
+
+    .page-wrap {
+      max-width: 680px;
+      margin: 0 auto;
+      padding: 0 24px 80px;
+    }
+
+    header {
+      padding: 56px 0 40px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 48px;
+    }
+
+    .app-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 20px;
+    }
+
+    .app-badge::before {
+      content: '';
+      display: block;
+      width: 6px;
+      height: 6px;
+      background: var(--text-muted);
+      border-radius: 50%;
+    }
+
+    h1 {
+      font-size: 36px;
+      font-weight: 300;
+      letter-spacing: -0.02em;
+      line-height: 1.2;
+      color: var(--text-primary);
+    }
+
+    h1 strong {
+      font-weight: 500;
+    }
+
+    .subtitle {
+      margin-top: 12px;
+      font-size: 16px;
+      color: var(--text-secondary);
+      max-width: 480px;
+    }
+
+    section {
+      margin-bottom: 40px;
+    }
+
+    h2 {
+      font-size: 13px;
+      font-weight: 500;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 16px;
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px 28px;
+    }
+
+    .card + .card {
+      margin-top: 12px;
+    }
+
+    .card p {
+      font-size: 15px;
+      color: var(--text-secondary);
+      line-height: 1.7;
+    }
+
+    .card p + p {
+      margin-top: 12px;
+    }
+
+    .data-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .data-list li {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      font-size: 15px;
+      color: var(--text-secondary);
+    }
+
+    .data-list li::before {
+      content: '';
+      flex-shrink: 0;
+      margin-top: 8px;
+      width: 5px;
+      height: 5px;
+      background: var(--border);
+      border-radius: 50%;
+    }
+
+    .data-list li strong {
+      font-weight: 500;
+      color: var(--text-primary);
+    }
+
+    .notice {
+      display: flex;
+      gap: 16px;
+      padding: 20px 22px;
+      border-radius: 10px;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    .notice-icon {
+      flex-shrink: 0;
+      font-size: 16px;
+      line-height: 1.7;
+    }
+
+    .notice.info {
+      background: var(--info-bg);
+      border: 1px solid var(--info-border);
+      color: var(--info);
+    }
+
+    .notice.warning {
+      background: var(--danger-bg);
+      border: 1px solid var(--danger-border);
+      color: var(--danger);
+    }
+
+    .notice.success {
+      background: var(--success-bg);
+      border: 1px solid var(--success-border);
+      color: var(--success);
+    }
+
+    .notice + .notice {
+      margin-top: 10px;
+    }
+
+    .steps {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+
+    .step {
+      display: flex;
+      gap: 20px;
+      position: relative;
+    }
+
+    .step:not(:last-child)::after {
+      content: '';
+      position: absolute;
+      left: 15px;
+      top: 36px;
+      bottom: 0;
+      width: 1px;
+      background: var(--border);
+    }
+
+    .step-number {
+      flex-shrink: 0;
+      width: 32px;
+      height: 32px;
+      border: 1px solid var(--border);
+      border-radius: 50%;
+      background: var(--surface);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      position: relative;
+      z-index: 1;
+    }
+
+    .step-body {
+      flex: 1;
+      padding-bottom: 28px;
+    }
+
+    .step-body h3 {
+      font-size: 15px;
+      font-weight: 500;
+      margin-bottom: 6px;
+      color: var(--text-primary);
+    }
+
+    .step-body p {
+      font-size: 14px;
+      color: var(--text-secondary);
+      line-height: 1.6;
+    }
+
+    .email-block {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      background: var(--accent-light);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 14px 18px;
+      margin-top: 10px;
+    }
+
+    .email-block code {
+      font-family: 'DM Mono', monospace;
+      font-size: 14px;
+      color: var(--text-primary);
+    }
+
+    .copy-btn {
+      flex-shrink: 0;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      background: transparent;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 6px 14px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .copy-btn:hover {
+      background: var(--surface);
+      color: var(--text-primary);
+      border-color: var(--text-muted);
+    }
+
+    .subject-block {
+      margin-top: 10px;
+      background: var(--accent-light);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 14px 18px;
+    }
+
+    .subject-block label {
+      display: block;
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+    }
+
+    .subject-block code {
+      font-family: 'DM Mono', monospace;
+      font-size: 13px;
+      color: var(--text-primary);
+    }
+
+    .timeline-row {
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+      font-size: 14px;
+      color: var(--text-secondary);
+    }
+
+    .timeline-row + .timeline-row {
+      margin-top: 10px;
+    }
+
+    .timeline-label {
+      flex-shrink: 0;
+      font-weight: 500;
+      color: var(--text-primary);
+      min-width: 100px;
+    }
+
+    footer {
+      margin-top: 64px;
+      padding-top: 24px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    footer p {
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    footer a {
+      color: var(--text-secondary);
+      text-decoration: none;
+    }
+
+    footer a:hover {
+      color: var(--text-primary);
+    }
+
+    @media (max-width: 480px) {
+      h1 { font-size: 26px; }
+      .card { padding: 20px; }
+      .email-block { flex-direction: column; align-items: flex-start; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page-wrap">
+
+    <header>
+      <div class="app-badge">Nova Routine</div>
+      <h1>Account &amp; Data<br /><strong>Deletion Request</strong></h1>
+      <p class="subtitle">
+        You can request the complete deletion of your account and all associated data at any time. This page explains how and what is deleted.
+      </p>
+    </header>
+
+    <section>
+      <h2>What data we store</h2>
+      <div class="card">
+        <ul class="data-list">
+          <li><span><strong>Google account identity</strong> — your name and email address obtained via Google Sign-In (OAuth 2.0).</span></li>
+          <li><span><strong>Google Drive access</strong> — if you granted Drive permission, we may read or write files within the app's designated Drive folder. No other Drive content is accessed.</span></li>
+          <li><span><strong>Google Calendar access</strong> — if you granted Calendar permission, we may read or create events associated with your in-app activity. No other calendar data is accessed.</span></li>
+          <li><span><strong>In-app activity data</strong> — game progress, scores, and settings stored locally on your device and/or synced to our backend.</span></li>
+        </ul>
+      </div>
+
+      <div class="notice info" style="margin-top: 16px;">
+        <span class="notice-icon">ℹ</span>
+        <span>We do not sell, share, or transfer your data to third parties for advertising purposes. Google Play Services data is handled in accordance with Google's own privacy policies.</span>
+      </div>
+    </section>
+
+    <section>
+      <h2>How to request deletion</h2>
+      <div class="steps">
+
+        <div class="step">
+          <div class="step-number">1</div>
+          <div class="step-body">
+            <h3>Send a deletion request by email</h3>
+            <p>Write to our support address from the email linked to your Google account.</p>
+            <div class="email-block">
+              <code id="email-addr">zorcedev@gmail.com</code>
+              <button class="copy-btn" onclick="copyEmail()">Copy</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-number">2</div>
+          <div class="step-body">
+            <h3>Use the required subject line</h3>
+            <p>This helps us identify and process your request without delay.</p>
+            <div class="subject-block">
+              <label>Email subject</label>
+              <code>Account Deletion Request</code>
+            </div>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-number">3</div>
+          <div class="step-body">
+            <h3>Confirmation &amp; deletion</h3>
+            <p>We will confirm receipt within 5 business days and complete the deletion process within 30 days of your request.</p>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <section>
+      <h2>What gets deleted</h2>
+      <div class="card">
+        <ul class="data-list">
+          <li><span><strong>Account identity data</strong> — name, email, and Google user ID removed from our systems.</span></li>
+          <li><span><strong>In-app activity data</strong> — all game progress, scores, and preferences stored on our servers.</span></li>
+          <li><span><strong>Drive-linked files</strong> — any files created by the app in your Google Drive within the app's designated folder. Files you created manually are never touched.</span></li>
+          <li><span><strong>Calendar-linked events</strong> — any calendar events created by the app on your behalf.</span></li>
+          <li><span><strong>Local device data</strong> — cached data on your device is removed the next time you open the app after deletion, or you can clear it manually from your device's app settings.</span></li>
+        </ul>
+      </div>
+
+      <div class="notice warning" style="margin-top: 16px;">
+        <span class="notice-icon">⚠</span>
+        <span>Revoking app permissions from your Google Account does not automatically delete data stored on our servers. You must submit a deletion request to ensure complete removal.</span>
+      </div>
+    </section>
+
+    <section>
+      <h2>Deletion timeline</h2>
+      <div class="card">
+        <div class="timeline-row">
+          <span class="timeline-label">Confirmation</span>
+          <span>Within 5 business days of receiving your request.</span>
+        </div>
+        <div class="timeline-row">
+          <span class="timeline-label">Full deletion</span>
+          <span>Within 30 days of your request. Backups are purged within the following backup cycle.</span>
+        </div>
+        <div class="timeline-row">
+          <span class="timeline-label">Legal retention</span>
+          <span>Certain transaction or compliance records may be retained for up to 90 days as required by applicable law.</span>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>Revoking Google permissions</h2>
+      <div class="card">
+        <p>
+          In addition to submitting a deletion request, you can revoke the app's Google Drive and Calendar permissions at any time from your Google Account security settings.
+        </p>
+        <p>
+          Visit <a href="https://myaccount.google.com/permissions" target="_blank" rel="noopener" style="color: var(--info); text-decoration: underline; text-underline-offset: 3px;">myaccount.google.com/permissions</a>, find Nova Routine in the list, and click <em>Remove Access</em>. This revokes OAuth tokens immediately.
+        </p>
+      </div>
+    </section>
+
+    <footer>
+      <p>Last updated: May 2025 &nbsp;·&nbsp; Nova Routine by <a href="https://zorcedev.itch.io" target="_blank" rel="noopener">zorcedev</a></p>
+      <p><a href="mailto:zorcedev@gmail.com">zorcedev@gmail.com</a></p>
+    </footer>
+
+  </div>
+
+  <script>
+    function copyEmail() {
+      const email = document.getElementById('email-addr').textContent;
+      navigator.clipboard.writeText(email).then(() => {
+        const btn = document.querySelector('.copy-btn');
+        const original = btn.textContent;
+        btn.textContent = 'Copied';
+        setTimeout(() => btn.textContent = original, 2000);
+      });
+    }
+  </script>
+</body>
+</html>
