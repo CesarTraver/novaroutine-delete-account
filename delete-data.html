@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Delete Your Data — Nova Routine</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #f7f5f0;
+      --surface: #ffffff;
+      --border: #e2ddd6;
+      --text-primary: #1a1916;
+      --text-secondary: #6b6860;
+      --text-muted: #9b9890;
+      --accent-light: #f0ede8;
+      --danger: #c0392b;
+      --danger-bg: #fdf3f2;
+      --danger-border: #f5c6c2;
+      --info: #1a5276;
+      --info-bg: #eaf2f8;
+      --info-border: #aed6f1;
+      --success: #1e6b3c;
+      --success-bg: #eafaf1;
+      --success-border: #a9dfbf;
+      --warning: #7d4e00;
+      --warning-bg: #fef9ec;
+      --warning-border: #f9e4a0;
+    }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text-primary);
+      min-height: 100vh;
+      line-height: 1.7;
+    }
+
+    .page-wrap {
+      max-width: 680px;
+      margin: 0 auto;
+      padding: 0 24px 80px;
+    }
+
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 32px;
+      font-size: 13px;
+      color: var(--text-muted);
+      text-decoration: none;
+      transition: color 0.15s;
+    }
+
+    .back-link:hover { color: var(--text-primary); }
+
+    .back-link::before {
+      content: '';
+      display: block;
+      width: 5px;
+      height: 5px;
+      border-left: 1.5px solid currentColor;
+      border-bottom: 1.5px solid currentColor;
+      transform: rotate(45deg);
+    }
+
+    header {
+      padding: 32px 0 40px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 48px;
+    }
+
+    .app-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 20px;
+    }
+
+    .app-badge::before {
+      content: '';
+      display: block;
+      width: 6px;
+      height: 6px;
+      background: var(--text-muted);
+      border-radius: 50%;
+    }
+
+    h1 {
+      font-size: 36px;
+      font-weight: 300;
+      letter-spacing: -0.02em;
+      line-height: 1.2;
+    }
+
+    h1 strong { font-weight: 500; }
+
+    .subtitle {
+      margin-top: 12px;
+      font-size: 16px;
+      color: var(--text-secondary);
+      max-width: 480px;
+    }
+
+    section { margin-bottom: 40px; }
+
+    h2 {
+      font-size: 13px;
+      font-weight: 500;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 16px;
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px 28px;
+    }
+
+    .card p {
+      font-size: 15px;
+      color: var(--text-secondary);
+      line-height: 1.7;
+    }
+
+    .card p + p { margin-top: 12px; }
+
+    .steps {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .step {
+      display: flex;
+      gap: 20px;
+      position: relative;
+    }
+
+    .step:not(:last-child)::after {
+      content: '';
+      position: absolute;
+      left: 15px;
+      top: 36px;
+      bottom: 0;
+      width: 1px;
+      background: var(--border);
+    }
+
+    .step-number {
+      flex-shrink: 0;
+      width: 32px;
+      height: 32px;
+      border: 1px solid var(--border);
+      border-radius: 50%;
+      background: var(--surface);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      position: relative;
+      z-index: 1;
+    }
+
+    .step-body {
+      flex: 1;
+      padding-bottom: 28px;
+    }
+
+    .step-body h3 {
+      font-size: 15px;
+      font-weight: 500;
+      margin-bottom: 6px;
+      color: var(--text-primary);
+    }
+
+    .step-body p {
+      font-size: 14px;
+      color: var(--text-secondary);
+      line-height: 1.6;
+    }
+
+    .path-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 10px;
+      background: var(--accent-light);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 16px;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text-primary);
+      font-family: 'DM Mono', monospace;
+    }
+
+    .path-pill span {
+      color: var(--text-muted);
+      font-weight: 400;
+    }
+
+    .notice {
+      display: flex;
+      gap: 14px;
+      padding: 18px 20px;
+      border-radius: 10px;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    .notice-icon {
+      flex-shrink: 0;
+      font-size: 15px;
+      line-height: 1.7;
+    }
+
+    .notice.info {
+      background: var(--info-bg);
+      border: 1px solid var(--info-border);
+      color: var(--info);
+    }
+
+    .notice.warning {
+      background: var(--warning-bg);
+      border: 1px solid var(--warning-border);
+      color: var(--warning);
+    }
+
+    .notice.danger {
+      background: var(--danger-bg);
+      border: 1px solid var(--danger-border);
+      color: var(--danger);
+    }
+
+    .notice + .notice { margin-top: 10px; }
+
+    .limit-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .limit-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px 22px;
+    }
+
+    .limit-card .icon {
+      font-size: 13px;
+      font-family: 'DM Mono', monospace;
+      font-weight: 400;
+      color: var(--text-muted);
+      background: var(--accent-light);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 3px 10px;
+      display: inline-block;
+      margin-bottom: 12px;
+    }
+
+    .limit-card h3 {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text-primary);
+      margin-bottom: 6px;
+    }
+
+    .limit-card p {
+      font-size: 13px;
+      color: var(--text-secondary);
+      line-height: 1.6;
+    }
+
+    .drive-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px 28px;
+    }
+
+    .drive-card .drive-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .drive-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      background: var(--accent-light);
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .drive-icon svg { width: 18px; height: 18px; }
+
+    .drive-card h3 {
+      font-size: 15px;
+      font-weight: 500;
+      color: var(--text-primary);
+    }
+
+    .drive-card p {
+      font-size: 14px;
+      color: var(--text-secondary);
+      line-height: 1.7;
+    }
+
+    .drive-card p + p { margin-top: 10px; }
+
+    .drive-card a {
+      color: var(--info);
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
+
+    footer {
+      margin-top: 64px;
+      padding-top: 24px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    footer p { font-size: 13px; color: var(--text-muted); }
+    footer a { color: var(--text-secondary); text-decoration: none; }
+    footer a:hover { color: var(--text-primary); }
+
+    @media (max-width: 480px) {
+      h1 { font-size: 26px; }
+      .card, .drive-card { padding: 20px; }
+      .limit-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page-wrap">
+
+    <a class="back-link" href="delete-account.html">Account &amp; Data Deletion</a>
+
+    <header>
+      <div class="app-badge">Nova Routine</div>
+      <h1>Delete Your<br /><strong>App Data</strong></h1>
+      <p class="subtitle">
+        Most of your data lives directly on your device. You can delete it yourself in seconds — no need to contact us.
+      </p>
+    </header>
+
+    <section>
+      <h2>Delete from the app</h2>
+      <div class="steps">
+
+        <div class="step">
+          <div class="step-number">1</div>
+          <div class="step-body">
+            <h3>Open Settings</h3>
+            <p>Tap the settings icon in the main navigation of Nova Routine.</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-number">2</div>
+          <div class="step-body">
+            <h3>Tap "Delete data"</h3>
+            <p>You will find this option at the bottom of the Settings screen.</p>
+            <div class="path-pill">
+              Settings <span>›</span> Delete data
+            </div>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-number">3</div>
+          <div class="step-body">
+            <h3>Confirm deletion</h3>
+            <p>A confirmation prompt will appear. Once confirmed, all local data is permanently removed from your device. This action cannot be undone.</p>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="notice danger" style="margin-top: 4px;">
+        <span class="notice-icon">⚠</span>
+        <span>This action is <strong>irreversible</strong>. Make sure you no longer need your routines, history, or settings before proceeding.</span>
+      </div>
+    </section>
+
+    <section>
+      <h2>Data we cannot delete for you</h2>
+      <p style="font-size: 15px; color: var(--text-secondary); margin-bottom: 20px; line-height: 1.7;">
+        Some data may exist outside our systems — in your own Google Drive or in files you have exported. We have no access to those copies and cannot delete them on your behalf.
+      </p>
+
+      <div class="drive-card" style="margin-bottom: 12px;">
+        <div class="drive-header">
+          <div class="drive-icon">
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12 2L2 19h20L12 2z" stroke="#6b6860" stroke-width="1.5" stroke-linejoin="round"/>
+              <path d="M2 19h20" stroke="#6b6860" stroke-width="1.5"/>
+              <path d="M12 2L7 19" stroke="#6b6860" stroke-width="1.5"/>
+            </svg>
+          </div>
+          <h3>Google Drive backups</h3>
+        </div>
+        <p>
+          If you enabled Drive backup inside the app, Nova Routine saved a copy of your data to your personal Google Drive account. That file belongs entirely to you — we cannot access or delete it.
+        </p>
+        <p>
+          To delete it, open <a href="https://drive.google.com" target="_blank" rel="noopener">drive.google.com</a>, find the Nova Routine folder, and delete its contents from there. You can also do this from the Google Drive app on your device.
+        </p>
+      </div>
+
+      <div class="limit-grid">
+        <div class="limit-card">
+          <div class="icon">.csv</div>
+          <h3>CSV export</h3>
+          <p>Spreadsheet files exported from the app are saved to your device storage or wherever you chose to save them. Delete them as you would any other file.</p>
+        </div>
+        <div class="limit-card">
+          <div class="icon">.json</div>
+          <h3>JSON export</h3>
+          <p>Raw data exports are saved locally or shared to apps of your choice. We have no record of where these files ended up after export.</p>
+        </div>
+        <div class="limit-card" style="grid-column: 1 / -1;">
+          <div class="icon">.pdf</div>
+          <h3>PDF reports</h3>
+          <p>PDF documents generated in the app may have been saved to your device, printed, or shared via email or other services. You are responsible for deleting those copies.</p>
+        </div>
+      </div>
+
+      <div class="notice warning" style="margin-top: 16px;">
+        <span class="notice-icon">ℹ</span>
+        <span>If you need help locating exported files on your device, check your Downloads folder or the app (e.g. Files, Google Files) used to save them at export time.</span>
+      </div>
+    </section>
+
+    <section>
+      <h2>Need more help?</h2>
+      <div class="card">
+        <p>
+          If you cannot find the option in the app or need to request full account deletion from our servers, visit the <a href="delete-account.html" style="color: var(--info); text-decoration: underline; text-underline-offset: 3px;">account deletion page</a> or contact us directly at <a href="mailto:zorcedev@gmail.com" style="color: var(--info); text-decoration: underline; text-underline-offset: 3px;">zorcedev@gmail.com</a>.
+        </p>
+      </div>
+    </section>
+
+    <footer>
+      <p>Last updated: May 2025 &nbsp;·&nbsp; Nova Routine by <a href="https://zorcedev.itch.io" target="_blank" rel="noopener">zorcedev</a></p>
+      <p><a href="mailto:zorcedev@gmail.com">zorcedev@gmail.com</a></p>
+    </footer>
+
+  </div>
+</body>
+</html>
